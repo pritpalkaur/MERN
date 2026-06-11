@@ -2,33 +2,104 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../model/product");
 
+// -----------------------------
 // GET all products
+// -----------------------------
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
     res.json(products);
   } catch (err) {
-    console.error("❌ Error fetching products:", err.message); // log error in console
+    console.error("❌ Error fetching products:", err.message);
     res.status(500).json({ message: "Server error while fetching products" });
   }
 });
-// Insert sample data
-router.get("/seed", async (req, res) => {
+// -----------------------------
+// GET a single product by ID
+// -----------------------------
+router.get("/:id", async (req, res) => {
   try {
-    const sample = [
-      { Name: "priti", Price: 100, Stock: 10 },
-      { Name: "vasu", Price: 200, Stock: 20 },
-      { Name: "priya", Price: 300, Stock: 30 },
-      { Name: "balaji", Price: 400, Stock: 40 },
-      { Name: "x", Price: 100, Stock: 10 }
-    ];
+    const product = await Product.findById(req.params.id);
 
-    await Product.insertMany(sample);
-    console.log("✅ Sample products inserted successfully");
-    res.json({ message: "Sample data added" });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    console.log("📦 Product fetched:", product);
+    res.json(product);
+
   } catch (err) {
-    console.error("❌ Error inserting sample data:", err.message);
-    res.status(500).json({ message: "Error inserting sample data" });
+    console.error("❌ Error fetching product by ID:", err.message);
+    res.status(500).json({ message: "Server error while fetching product" });
   }
 });
+// -----------------------------
+// INSERT a new product
+// -----------------------------
+router.post("/", async (req, res) => {
+  try {
+    const { Name, Price, Stock } = req.body;
+
+    const newProduct = new Product({
+      Name,
+      Price,
+      Stock
+    });
+
+    const savedProduct = await newProduct.save();
+    console.log("✅ Product inserted:", savedProduct);
+    res.status(201).json(savedProduct);
+
+  } catch (err) {
+    console.error("❌ Error inserting product:", err.message);
+    res.status(500).json({ message: "Server error while inserting product" });
+  }
+});
+
+// -----------------------------
+// UPDATE a product by ID
+// -----------------------------
+router.put("/:id", async (req, res) => {
+  try {
+    const { Name, Price, Stock } = req.body;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { Name, Price, Stock },
+      { new: true } // return updated document
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    console.log("🔄 Product updated:", updatedProduct);
+    res.json(updatedProduct);
+
+  } catch (err) {
+    console.error("❌ Error updating product:", err.message);
+    res.status(500).json({ message: "Server error while updating product" });
+  }
+});
+
+// -----------------------------
+// DELETE a product by ID
+// -----------------------------
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    console.log("🗑️ Product deleted:", deletedProduct);
+    res.json({ message: "Product deleted successfully" });
+
+  } catch (err) {
+    console.error("❌ Error deleting product:", err.message);
+    res.status(500).json({ message: "Server error while deleting product" });
+  }
+});
+
 module.exports = router;
