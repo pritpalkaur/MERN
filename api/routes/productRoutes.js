@@ -7,7 +7,9 @@ const Product = require("../model/product");
 // -----------------------------
 router.get("/", async (req, res) => {
   try {
+    console.log("📦 Fetching all products...");
     const products = await Product.find();
+     console.log(products);
     res.json(products);
   } catch (err) {
     console.error("❌ Error fetching products:", err.message);
