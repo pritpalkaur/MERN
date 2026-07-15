@@ -1,3 +1,5 @@
+require("dotenv").config(); 
+
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
@@ -16,7 +18,7 @@ connectDB();
 
 // Routes
 app.use("/api/products", require("./routes/productRoutes"));
-
+app.use('/api/users', require('./routes/userRoutes'));
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
 
