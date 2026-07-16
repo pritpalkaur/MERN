@@ -68,7 +68,7 @@ const ProductList = () => {
       );
 
       if (!response.ok) {
-        CONSOLE.error("API error:", response.statusText); 
+        console.error("API error:", response.statusText); 
         throw new Error("Failed to update product");
       }
 

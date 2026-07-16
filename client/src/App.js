@@ -1,8 +1,7 @@
 import React from "react";
-import ProductList from "./components/productList";
+import DashboardTabs from "./components/DashboardTabs";
 
 function App() {
-  return <ProductList />;
+  return <DashboardTabs />;
 }
-
 export default App;
