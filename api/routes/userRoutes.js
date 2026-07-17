@@ -31,9 +31,9 @@ router.post("/", async (req, res) => {
 // -----------------------------
 router.get("/", async (req, res) => {
   try {
-    console.log("📦 Fetching all users...");
+    //console.log("📦 Fetching all users...");
     const users = await User.find();
-     console.log(users);
+     //console.log(users);
     res.json(users);
   } catch (err) {
     console.error("❌ Error fetching users:", err.message);
@@ -63,7 +63,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-console.log("🔑 User login attempt:", user);
+  console.log("🔑 User login attempt:", user);
   if (user && (await user.matchPassword(password))) {
     res.json({ token: generateToken(user._id) });
   } else {
@@ -71,12 +71,12 @@ console.log("🔑 User login attempt:", user);
   }
 });
 
-// Protected route
-router.get('/profile', protect, async (req, res) => {
-  const user = await User.findById(req.user).select('-password');
+// Protected route// GET /api/users/profile
+router.get("/profile", protect, async (req, res) => {
+  const user = await User.findById(req.user.id).select("name email");
+  console.log("👤 User profile accessed:", user);
   res.json(user);
 });
-
 // -----------------------------
 // DELETE a user by ID
 // -----------------------------
@@ -94,6 +94,40 @@ router.delete("/:id", async (req, res) => {
   } catch (err) {
     console.error("❌ Error deleting user:", err.message);
     res.status(500).json({ message: "Server error while deleting user  " });
+  }
+});
+// -----------------------------
+// UPDATE a user by ID
+// -----------------------------
+router.put("/:id", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    console.log("✏️ Update request for user ID: this is test", req.body);
+    // Find user by ID
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields if provided
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (password) user.password = password; // will be hashed by pre('save') hook
+
+    // Save updated user
+    const updatedUser = await user.save();
+
+    console.log("✏️ User updated:", updatedUser);
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+    });
+  } catch (err) {
+    console.error("❌ Error updating user:", err.message);
+    res.status(500).json({ message: "Server error while updating user" });
   }
 });
 

@@ -36,6 +36,12 @@ const UserList = () => {
     }
   };
 
+    // Open dialog for new user
+  const handleCreate = () => {
+    setEditUser(null);
+    setForm({ name: "", email: "", password: "" });
+    setOpen(true);
+  };
   // Open edit dialog
   const handleUpdate = (u) => {
     setEditUser(u._id || u.id);
@@ -44,28 +50,38 @@ const UserList = () => {
   };
 
   // Save updated user
-  const saveUpdate = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/users/${editUser}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password // optional: only update if provided
-        })
-      });
+// Save new or updated user
+const saveUser = async () => {
+  try {
+    const isEdit = Boolean(editUser);
+    const url = isEdit
+      ? `http://localhost:5000/api/users/${editUser}`
+      : "http://localhost:5000/api/users/register";
+    const method = isEdit ? "PUT" : "POST";
 
-      if (!response.ok) throw new Error("Failed to update user");
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    });
 
-      const updatedUser = await response.json();
-      setUsers(users.map((u) => (u._id || u.id) === editUser ? updatedUser : u));
-      setOpen(false);
-    } catch (error) {
-      console.error("Update error:", error);
-      alert("Failed to update user");
+    if (!response.ok) throw new Error("Failed to save user");
+
+    const savedUser = await response.json();
+
+    if (isEdit) {
+      setUsers(users.map((u) => (u._id || u.id) === editUser ? savedUser : u));
+    } else {
+      setUsers([...users, savedUser]);
     }
-  };
+
+    setOpen(false);
+  } catch (error) {
+    console.error("Save error:", error);
+    alert("Failed to save user");
+  }
+};
+
 
   // Delete user
   const handleDelete = async (id) => {
@@ -87,6 +103,13 @@ const UserList = () => {
         User Dashboard
       </Typography>
 
+  {/* Create User Button */}
+      <Box sx={{ textAlign: "center", mb: 3 }}>
+        <Button variant="contained" color="success" onClick={handleCreate}>
+          + Add User
+        </Button>
+      </Box>
+      
       <Grid container spacing={3}>
         {users.map((u) => (
           <Grid item xs={12} sm={6} md={4} key={u._id || u.id}>
@@ -141,7 +164,7 @@ const UserList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)} color="secondary">Cancel</Button>
-          <Button onClick={saveUpdate} variant="contained" color="primary">Save</Button>
+          <Button onClick={saveUser} variant="contained" color="primary">Save</Button>
         </DialogActions>
       </Dialog>
     </Box>
