@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
     const newUser = new User({ name, email, password });
     const savedUser = await newUser.save();
 
-    console.log("✅ User inserted:", savedUser);
+    //console.log("✅ User inserted:", savedUser);
     res.status(201).json(savedUser);
 
   } catch (err) {
@@ -63,7 +63,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  console.log("🔑 User login attempt:", user);
+  //console.log("🔑 User login attempt:", user);
   if (user && (await user.matchPassword(password))) {
     res.json({ token: generateToken(user._id) });
   } else {
@@ -74,7 +74,7 @@ router.post('/login', async (req, res) => {
 // Protected route// GET /api/users/profile
 router.get("/profile", protect, async (req, res) => {
   const user = await User.findById(req.user.id).select("name email");
-  console.log("👤 User profile accessed:", user);
+ // console.log("👤 User profile accessed:", user);
   res.json(user);
 });
 // -----------------------------
@@ -102,7 +102,7 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    console.log("✏️ Update request for user ID: this is test", req.body);
+    //console.log("✏️ Update request for user ID: this is test", req.body);
     // Find user by ID
     const user = await User.findById(req.params.id);
 
@@ -118,7 +118,7 @@ router.put("/:id", async (req, res) => {
     // Save updated user
     const updatedUser = await user.save();
 
-    console.log("✏️ User updated:", updatedUser);
+    //console.log("✏️ User updated:", updatedUser);
 
     res.json({
       _id: updatedUser._id,
