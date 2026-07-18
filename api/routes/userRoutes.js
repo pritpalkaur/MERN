@@ -63,9 +63,10 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  //console.log("🔑 User login attempt:", user);
   if (user && (await user.matchPassword(password))) {
+       console.log("🔑 this is after generateToken", user);
     res.json({ token: generateToken(user._id) });
+      console.log("🔑 this is after generateToken", user);
   } else {
     res.status(401).json({ message: 'Invalid credentials' });
   }
